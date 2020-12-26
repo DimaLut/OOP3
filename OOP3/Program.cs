@@ -23,7 +23,7 @@ namespace OOP3
                         seller.ShowProducts();
                         break;
                     case 2:
-                        BuyProduct(ref seller, ref purchaser);
+                        BuyProduct( seller, purchaser);
                         break;
                     case 3:
                         purchaser.ShowProducts();
@@ -38,7 +38,6 @@ namespace OOP3
                               "2) Купить товар \n" +
                               "3) Вывести товар у покупателя \n" +
                               "4) Выход\n");
-
                 action = Convert.ToInt32(Console.ReadLine());
             }
 
@@ -47,39 +46,42 @@ namespace OOP3
             purchaser.ShowProducts();
         }
 
-        static private void BuyProduct(ref Seller seller, ref Purchaser purchaser)
+        static private void BuyProduct( Seller seller, Purchaser purchaser)
         {
             seller.ShowProducts();
 
             int productNumber = Convert.ToInt32(Console.ReadLine());
 
-            seller.Sell(productNumber, ref purchaser);
+            Product product = seller.Sell(productNumber);
+
+            if (product != null)
+            {
+                purchaser.BuyProduct(product);
+                Console.WriteLine("Покупка завершена успешно!");
+            }
+
         }
     }
 
-    class Purchaser
+    class Purchaser: User
     {
-        public List<Product> Products { get; set; }
+        
 
         public Purchaser()
         {
-            Products = new List<Product>();
+            _products = new List<Product>();
         }
 
-        public void ShowProducts()
+      
+
+        public void BuyProduct(Product product)
         {
-            Console.WriteLine("Список товаров покупателя!");
-            foreach (Product product in Products)
-            {
-                Console.WriteLine("{0}", product.Name);
-            }
-            Console.WriteLine();
+            _products.Add(product);
         }
     }
 
-    class Seller
+    class Seller: User
     {
-        private List<Product> _products;
 
         public Seller()
         {
@@ -92,30 +94,17 @@ namespace OOP3
             };
         }
 
-        public void Sell(int productNumber, ref Purchaser purchaser)
+        public Product Sell(int productNumber)
         {
             Product product = _products.FirstOrDefault(product => product.Number == productNumber);
 
             if (product == null)
             {
                 Console.WriteLine("Товара с заданным номером нет в списке!");
-                return;
             }
 
-            purchaser.Products.Add(product);
             _products.Remove(product);
-            Console.WriteLine("Продажа товаров прошла успешно!");
-        }
-
-        public void ShowProducts()
-        {
-            Console.WriteLine("Список товаров продавца!\n" +
-                              "Какой телефон вы хотите купить?\n");
-            foreach (Product product in _products)
-            {
-                Console.WriteLine("{0} - {1} ", product.Number, product.Name);
-            }
-            Console.WriteLine();
+            return product;
         }
     }
 
@@ -130,6 +119,20 @@ namespace OOP3
             Name = name;
         }
 
+    }
+
+    class User
+    {
+        public List<Product> _products { get;  private protected set; }
+        public void ShowProducts()
+        {
+            Console.WriteLine("Показать ссписок товаров");
+            foreach (Product product in _products)
+            {
+                Console.WriteLine("{0} - {1} ", product.Number, product.Name);
+            }
+            Console.WriteLine();
+        }
     }
 }
 
